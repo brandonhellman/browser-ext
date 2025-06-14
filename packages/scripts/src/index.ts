@@ -3,7 +3,9 @@ import { program } from 'commander';
 
 import { name, version } from '../package.json';
 import { build } from './scripts/build';
+import { buildAndZip } from './scripts/buildAndZip';
 import { dev } from './scripts/dev';
+import { zip } from './scripts/zip';
 import Logger from './utils/logger';
 
 // Setup the program
@@ -13,8 +15,24 @@ program.name(name).version(version, '-v, --version').usage('<script> [option]');
 program
   .command('build')
   .description('Build the browser extension for production.')
-  .action(() => {
-    build();
+  .action(async () => {
+    await build();
+  });
+
+// Add the zip command
+program
+  .command('zip')
+  .description('Create a zip file of the production build.')
+  .action(async () => {
+    await zip();
+  });
+
+// Add the build-and-zip command
+program
+  .command('build-and-zip')
+  .description('Build the browser extension for production and create a zip file.')
+  .action(async () => {
+    await buildAndZip();
   });
 
 // Add the start command
