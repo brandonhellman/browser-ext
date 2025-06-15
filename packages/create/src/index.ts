@@ -22,7 +22,7 @@ interface TreeItem {
  * Gets the tree of files from GitHub repository
  */
 async function getRepositoryTree(example: string): Promise<TreeItem[]> {
-  const url = `https://api.github.com/repos/brandon-hellman/browser-ext/git/trees/main?recursive=1`;
+  const url = `https://api.github.com/repos/brandonhellman/browser-ext/git/trees/main?recursive=1`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -37,7 +37,7 @@ async function getRepositoryTree(example: string): Promise<TreeItem[]> {
  * Downloads a file from GitHub repository
  */
 async function downloadFile(filePath: string, destPath: string) {
-  const url = `https://raw.githubusercontent.com/brandon-hellman/browser-ext/main/${filePath}`;
+  const url = `https://raw.githubusercontent.com/brandonhellman/browser-ext/main/${filePath}`;
 
   try {
     const response = await fetch(url);
