@@ -81,11 +81,11 @@ async function downloadExample(example: Example, targetDir: string) {
 
     console.log('\nSuccess! Created browser extension from', example);
     console.log('\nInside that directory, you can run several commands:');
-    console.log('\n  npm install');
+    console.log('\n  yarn install');
     console.log('    Install the dependencies');
-    console.log('\n  npm run dev');
+    console.log('\n  yarn dev');
     console.log('    Starts the development server');
-    console.log('\n  npm run build');
+    console.log('\n  yarn build');
     console.log('    Builds the extension for production\n');
   } catch (error) {
     console.error('\nFailed to create browser extension:', error);
