@@ -16,6 +16,6 @@
     "@repo/typescript-config": "*",
     "@types/chrome": "^0.0.287",
     "tsup": "^8.3.5",
-    "typescript": "latest"
+    "typescript": "^5.7.3"
   }
 }
