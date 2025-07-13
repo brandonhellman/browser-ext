@@ -1,5 +1,6 @@
 import webpack from 'webpack';
 import { WebSocket, WebSocketServer } from 'ws';
+import getPort, { portNumbers } from 'get-port';
 
 import Logger from '../utils/logger';
 import { getConfig } from '../webpack/getConfig';
@@ -9,13 +10,17 @@ import { getEntries } from '../webpack/getEntries';
 let wss: WebSocketServer | null = null;
 let webpackWatcher: webpack.Watching | null = null;
 
-function setupWebSocketServer(port: number) {
+async function setupWebSocketServer(preferredPort: number): Promise<number> {
   if (wss) {
     wss.close();
     wss = null;
   }
 
-  wss = new WebSocketServer({ port: port });
+  // Find an available port starting from the preferred port and counting up
+  const ports = [preferredPort, ...portNumbers(preferredPort + 1, preferredPort + 100)];
+  const availablePort = await getPort({ port: ports });
+
+  wss = new WebSocketServer({ port: availablePort });
 
   wss.on('connection', (ws) => {
     ws.on('error', (error) => {
@@ -23,7 +28,8 @@ function setupWebSocketServer(port: number) {
     });
   });
 
-  Logger.info(`WebSocket server started on port ${port}`);
+  Logger.info(`WebSocket server started on port ${availablePort}`);
+  return availablePort;
 }
 
 function notifyClientsToReload(changedFiles: string[], entries: ReturnType<typeof getEntries>) {
@@ -65,12 +71,14 @@ function notifyClientsToReload(changedFiles: string[], entries: ReturnType<typeo
   });
 }
 
-export function dev(options: { port: number; reload: boolean; verbose: boolean }) {
+export async function dev(options: { port: number; reload: boolean; verbose: boolean }) {
   Logger.info('Starting development build...');
+
+  let actualPort = options.port;
 
   // Only start WebSocket server if auto reload is enabled
   if (options.reload !== false) {
-    setupWebSocketServer(options.port);
+    actualPort = await setupWebSocketServer(options.port);
   }
 
   const entries = getEntries();
@@ -78,7 +86,7 @@ export function dev(options: { port: number; reload: boolean; verbose: boolean }
   const config = getConfig({
     entry: entries,
     mode: 'development',
-    port: options.port,
+    port: actualPort,
     reload: options.reload,
   });
 
