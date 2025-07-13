@@ -93,7 +93,7 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
   webpackWatcher = webpack(config).watch(
     {
       aggregateTimeout: 300,
-      poll: 1000,
+      ignored: ['**/node_modules/**', '**/build/**', '**/dist/**', '**/.git/**'],
     },
     (err, stats) => {
       if (err) {
