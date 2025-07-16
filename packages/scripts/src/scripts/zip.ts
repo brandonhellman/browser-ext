@@ -6,8 +6,25 @@ import { pathToBrowserExt } from '../utils/pathToBrowserExt';
 
 export function zip() {
   return new Promise<void>((resolve, reject) => {
-    const packageJson = fs.readJSONSync(pathToBrowserExt.packageJson);
-    const version = packageJson.version;
+    // Try to get version from manifest.json first
+    let version: string;
+
+    try {
+      const manifestJson = fs.readJSONSync(pathToBrowserExt.manifestJson);
+
+      if (manifestJson.version) {
+        version = manifestJson.version;
+      } else {
+        // Fall back to package.json if manifest doesn't have version
+        const packageJson = fs.readJSONSync(pathToBrowserExt.packageJson);
+        version = packageJson.version;
+      }
+    } catch (err) {
+      // If manifest.json doesn't exist or has issues, use package.json
+      const packageJson = fs.readJSONSync(pathToBrowserExt.packageJson);
+      version = packageJson.version;
+    }
+
     const zipName = `chrome-prod-${version}.zip`;
     const output = fs.createWriteStream(path.join(pathToBrowserExt.build, zipName));
     const archive = archiver('zip', {
