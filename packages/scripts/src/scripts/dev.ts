@@ -149,18 +149,24 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
 
   // Force exit after timeout if graceful shutdown fails
   let forceExit = false;
+  let shutdownInProgress = false;
 
-  process.on('SIGINT', () => {
+  const shutdown = () => {
+    if (shutdownInProgress) {
+      return;
+    }
+    
     if (forceExit) {
       Logger.info('Force exiting...');
       process.exit(1);
     }
 
+    shutdownInProgress = true;
     forceExit = true;
     Logger.info('Shutting down dev server...');
 
     // Force exit after 3 seconds if graceful shutdown fails
-    setTimeout(() => {
+    const forceExitTimeout = setTimeout(() => {
       Logger.warn('Could not gracefully shut down within timeout, forcing exit...');
       process.exit(1);
     }, 3000);
@@ -168,6 +174,14 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
     Promise.all([
       new Promise<void>((resolve) => {
         if (wss) {
+          // First, close all client connections
+          wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.close();
+            }
+          });
+          
+          // Then close the server
           wss.close(() => {
             Logger.info('WebSocket server closed');
             resolve();
@@ -178,8 +192,19 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
       }),
       new Promise<void>((resolve) => {
         if (webpackWatcher) {
-          webpackWatcher.close(() => {
-            Logger.info('Webpack watcher closed');
+          // Add timeout in case webpack watcher doesn't close properly
+          const watcherTimeout = setTimeout(() => {
+            Logger.warn('Webpack watcher close timeout, proceeding...');
+            resolve();
+          }, 2000);
+          
+          webpackWatcher.close((err) => {
+            clearTimeout(watcherTimeout);
+            if (err) {
+              Logger.error('Error closing webpack watcher:', err);
+            } else {
+              Logger.info('Webpack watcher closed');
+            }
             resolve();
           });
         } else {
@@ -187,10 +212,17 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
         }
       }),
     ]).then(() => {
+      clearTimeout(forceExitTimeout);
       Logger.info('Clean shutdown completed');
       process.exit(0);
+    }).catch((error) => {
+      Logger.error('Error during shutdown:', error);
+      process.exit(1);
     });
-  });
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
 // Utility function to format bytes
