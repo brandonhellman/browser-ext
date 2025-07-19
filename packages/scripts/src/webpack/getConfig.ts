@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import dotenv from 'dotenv';
 import webpack from 'webpack';
 
 import { pathToBrowserExt } from '../utils/pathToBrowserExt';
@@ -31,6 +34,28 @@ interface ConfigOptionsProduction extends ConfigOptions {
 }
 
 export function getConfig(options: ConfigOptionsDevelopment | ConfigOptionsProduction): webpack.Configuration {
+  // Load .env files
+  const envFiles = ['.env.local', `.env.${options.mode}`, '.env'];
+
+  // Load environment variables from files
+  envFiles.forEach((envFile) => {
+    const envPath = path.resolve(process.cwd(), envFile);
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath });
+    }
+  });
+
+  // Filter environment variables - only pass those prefixed with BROWSER_EXT_
+  const envVars: Record<string, string> = {};
+  Object.keys(process.env).forEach((key) => {
+    if (key.startsWith('BROWSER_EXT_')) {
+      envVars[key] = process.env[key] || '';
+    }
+  });
+
+  // Also include NODE_ENV
+  envVars.NODE_ENV = options.mode;
+
   const isDevelopment = options.mode === 'development';
   const isProduction = options.mode === 'production';
 
@@ -104,9 +129,15 @@ export function getConfig(options: ConfigOptionsDevelopment | ConfigOptionsProdu
   };
 
   const basePlugins = [
-    new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env),
-    }),
+    new webpack.DefinePlugin(
+      Object.keys(envVars).reduce(
+        (acc, key) => {
+          acc[`process.env.${key}`] = JSON.stringify(envVars[key]);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    ),
     CopyManifestPlugin(isDevelopment),
     CopyCssManifestPlugin(isDevelopment),
     CopyHtmlPlugin(isDevelopment),

@@ -22,6 +22,7 @@ browser-ext/
 ## Essential Commands
 
 ### Development
+
 ```bash
 # Install dependencies (use Yarn, not npm)
 yarn install
@@ -39,6 +40,7 @@ browser-ext dev --reload false # Disable hot reload
 ```
 
 ### Building
+
 ```bash
 # Build all packages in monorepo
 yarn build
@@ -54,6 +56,7 @@ browser-ext zip
 ```
 
 ### Code Quality
+
 ```bash
 # Format all code with Prettier
 yarn format
@@ -64,7 +67,9 @@ yarn format
 ## Architecture
 
 ### Browser Extension Structure
+
 Extensions built with this framework follow this pattern:
+
 ```
 extension/
 ├── manifest.json       # Chrome extension manifest V3
@@ -75,6 +80,7 @@ extension/
 ```
 
 ### Build System
+
 - **Webpack 5** with custom configuration for browser extensions
 - Automatic entry point detection from manifest.json
 - Built-in support for:
@@ -85,19 +91,19 @@ extension/
   - Locale file management
 
 ### Key Packages
+
 1. **@browser-ext/scripts**: Core CLI and Webpack configuration
    - Contains all build logic in `src/webpack/`
    - Custom plugins for manifest handling, HTML processing, and hot reload
-   
 2. **@browser-ext/storage**: Browser storage API utilities
    - Wraps chrome.storage APIs with better TypeScript support
-   
 3. **@browser-ext/create**: Scaffolding tool for new extensions
    - Used via `npx @browser-ext/create`
 
 ## Development Workflow
 
 1. **Creating a new extension**:
+
    ```bash
    npx @browser-ext/create my-extension
    cd my-extension
@@ -105,7 +111,7 @@ extension/
    yarn dev
    ```
 
-2. **Modifying the build system**: 
+2. **Modifying the build system**:
    - Core Webpack config: `packages/scripts/src/webpack/webpack.config.ts`
    - CLI commands: `packages/scripts/src/index.ts`
 

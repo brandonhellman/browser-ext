@@ -1,6 +1,6 @@
+import getPort, { portNumbers } from 'get-port';
 import webpack from 'webpack';
 import { WebSocket, WebSocketServer } from 'ws';
-import getPort, { portNumbers } from 'get-port';
 
 import Logger from '../utils/logger';
 import { getConfig } from '../webpack/getConfig';
@@ -155,7 +155,7 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
     if (shutdownInProgress) {
       return;
     }
-    
+
     if (forceExit) {
       Logger.info('Force exiting...');
       process.exit(1);
@@ -180,7 +180,7 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
               client.close();
             }
           });
-          
+
           // Then close the server
           wss.close(() => {
             Logger.info('WebSocket server closed');
@@ -197,7 +197,7 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
             Logger.warn('Webpack watcher close timeout, proceeding...');
             resolve();
           }, 2000);
-          
+
           webpackWatcher.close((err) => {
             clearTimeout(watcherTimeout);
             if (err) {
@@ -211,14 +211,16 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
           resolve();
         }
       }),
-    ]).then(() => {
-      clearTimeout(forceExitTimeout);
-      Logger.info('Clean shutdown completed');
-      process.exit(0);
-    }).catch((error) => {
-      Logger.error('Error during shutdown:', error);
-      process.exit(1);
-    });
+    ])
+      .then(() => {
+        clearTimeout(forceExitTimeout);
+        Logger.info('Clean shutdown completed');
+        process.exit(0);
+      })
+      .catch((error) => {
+        Logger.error('Error during shutdown:', error);
+        process.exit(1);
+      });
   };
 
   process.on('SIGINT', shutdown);
