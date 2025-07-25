@@ -1,8 +1,5 @@
 import { router } from '../../trpc';
-import { logJsonProcedure } from './procedures/logJsonProcedure';
 
-export const apiRouter = router({
-  logJson: logJsonProcedure,
-});
+export const apiRouter = router({});
 
 export type ApiRouter = typeof apiRouter;

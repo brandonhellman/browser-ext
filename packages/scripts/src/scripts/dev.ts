@@ -78,8 +78,7 @@ export async function dev(options: { port: number; reload: boolean; verbose: boo
 
   // Only start WebSocket server if auto reload is enabled
   if (options.reload !== false) {
-    // Use a different port range for WebSocket (starting from 10001)
-    actualPort = await setupWebSocketServer(10001);
+    actualPort = await setupWebSocketServer(options.port);
   }
 
   const entries = getEntries();
