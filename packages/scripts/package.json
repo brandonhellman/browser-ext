@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+    "dev": "tsup src/index.ts --format esm --dts --watch"
   },
   "dependencies": {
     "@babel/core": "^7.26.0",

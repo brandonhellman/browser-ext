@@ -125,6 +125,28 @@ extension/
    - Run `yarn build` at root to ensure all packages build
    - The scripts package is published to npm as `@browser-ext/scripts`
 
+## Working on @browser-ext/core Package
+
+The core package has a special development setup for testing in external projects:
+
+1. **Development mode with auto-linking**:
+   ```bash
+   cd packages/core
+   yarn dev  # Automatically builds, links, and watches
+   ```
+
+2. **Testing in external projects**:
+   ```bash
+   # In your test project (one-time)
+   yarn link "@browser-ext/core"
+   ```
+
+The `yarn dev` command in the core package:
+- Performs a clean build
+- Creates a global yarn link automatically
+- Watches for changes with hot rebuild
+- Ensures the package is always ready for external testing
+
 ## Important Notes
 
 - Always use Yarn, not npm (the project uses Yarn workspaces)

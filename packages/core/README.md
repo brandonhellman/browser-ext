@@ -22,6 +22,27 @@ yarn add -D @browser-ext/core
 pnpm add -D @browser-ext/core
 ```
 
+## Development
+
+### Local Development Setup
+
+When developing this package locally or testing in external projects:
+
+```bash
+# In @browser-ext/core directory
+yarn dev  # Builds, links globally, and watches for changes
+
+# In your test project
+yarn link "@browser-ext/core"  # One-time setup
+```
+
+The `yarn dev` command automatically:
+1. Cleans and builds the package
+2. Creates a global yarn link
+3. Watches for changes and rebuilds
+
+This allows you to test the package in any project outside the monorepo while developing.
+
 ## Usage
 
 ### Zero Configuration
